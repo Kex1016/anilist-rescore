@@ -2,14 +2,12 @@ import {
   type List,
   type Viewer as ViewerType,
   ScoreSystem,
-} from "../types/UserData";
+  Entry,
+} from "@/types/UserData";
+import { userStore } from "./state";
 
-export const Token = async () => {
-  const userData = JSON.parse(
-    localStorage.getItem("userData") as string
-  ) as ViewerType;
-
-  return userData.token.accessToken;
+export const Token = () => {
+  return userStore.token.accessToken;
 };
 
 // Extend ViewerType to include mediaListOptions
@@ -42,7 +40,7 @@ export const Viewer = async () => {
         }
       }`;
 
-  const token = await Token();
+  const token = Token();
   if (!token) return undefined;
 
   const res = await fetch("https://graphql.anilist.co", {
@@ -96,6 +94,8 @@ export const MediaList = async (type: "ANIME" | "MANGA") => {
             }
             description(asHtml: false)
             siteUrl
+            genres
+            episodes
           }
           startedAt {
             year
@@ -110,10 +110,14 @@ export const MediaList = async (type: "ANIME" | "MANGA") => {
           score
           advancedScores
           status
+          progress
         }
       }
     }
   }`;
+
+  const token = Token();
+  if (!token) return undefined;
 
   try {
     const res = await fetch("https://graphql.anilist.co", {
@@ -121,7 +125,7 @@ export const MediaList = async (type: "ANIME" | "MANGA") => {
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
-        Authorization: `Bearer ${await Token()}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         query,
@@ -135,30 +139,48 @@ export const MediaList = async (type: "ANIME" | "MANGA") => {
   }
 };
 
-export const SetScore = async (
-  id: number,
-  scores: [number, number, number]
+export const SaveScore = async (
+  entry: Entry,
+  advanced: boolean,
+  advancedScores: {[key: string]: number},
+  score: number,
 ) => {
-  const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
-  const query = `mutation {
-    SaveMediaListEntry(id:${id},score:${avg},advancedScores:[${scores[0]},${scores[1]},${scores[2]}]) {
+  const query = `mutation ($listId: Int, $score: Float, $advancedScores: [Float]) {
+    SaveMediaListEntry (id: $listId, score: $score, advancedScores: $advancedScores) {
       id
       score
       advancedScores
     }
   }`;
 
-  const res = await fetch("https://graphql.anilist.co", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      Authorization: `Bearer ${await Token()}`,
-    },
-    body: JSON.stringify({
-      query,
-    }),
-  }).then((res) => res.json());
+  const token = Token();
+  if (!token) return undefined;
 
-  return res.data.SaveMediaListEntry;
+  // Make sure that score and advancedScores are floats
+
+  try {
+    const res = await fetch("https://graphql.anilist.co", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        query,
+        variables: {
+          listId: entry.id,
+          score: advanced ?
+          Object.values(advancedScores).reduce((a, b) => a + b, 0) / Object.values(advancedScores).length
+           : parseFloat(score.toString()),
+          advancedScores: advanced ? Object.values(advancedScores).map((score) => parseFloat(score.toString())) : undefined,
+        },
+      }),
+    }).then((res) => res.json());
+
+    return res.data.SaveMediaListEntry as Entry | undefined;
+  } catch (e) {
+    console.error(e);
+    return undefined;
+  }
 };

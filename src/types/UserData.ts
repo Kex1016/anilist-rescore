@@ -12,9 +12,13 @@ export type Entry = {
   completedAt: Date;
   media: Media;
   score: number;
-  advancedScores: { [key: string]: number };
+  // Advanced scores are multiple [key:string]: number pairs
+  advancedScores: {
+    [key: string]: number;
+  };
   status: Status;
   fromList: string;
+  progress: number;
 };
 
 export type Media = {
@@ -25,6 +29,8 @@ export type Media = {
   format: string;
   coverImage: CoverImage;
   siteUrl: string;
+  genres: string[];
+  episodes: number;
 };
 
 type Date = {
@@ -111,6 +117,7 @@ export type ListData = {
     anime: HistoryType[];
     manga: HistoryType[];
   };
+  lastFetched?: number;
 };
 
 export type Viewer = {

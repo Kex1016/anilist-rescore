@@ -1,0 +1,8 @@
+.navbar-links > nav > div:last-child {
+  left: unset !important;
+  right: 0 !important;
+}
+
+.avatar > [type="button"][aria-expanded="true"] {
+  @apply scale-90;
+}

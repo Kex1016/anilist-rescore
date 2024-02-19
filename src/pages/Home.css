@@ -1,0 +1,42 @@
+.floating-images img {
+  position: absolute;
+  animation: float 6s ease-in-out infinite;
+  border-radius: 1rem;
+  width: 200px;
+  z-index: 1;
+}
+
+.floating-images img:nth-child(1) {
+  animation-delay: 0s;
+  right: 10%;
+}
+
+.floating-images img:nth-child(2) {
+  animation-delay: 1s;
+  margin-top: 50px;
+  right: calc(10% + 50px);
+}
+
+.floating-images img:nth-child(3) {
+  animation-delay: 2s;
+  margin-top: 100px;
+  right: calc(10% + 100px);
+}
+
+.floating-images img:nth-child(4) {
+  animation-delay: 3s;
+  margin-top: 150px;
+  right: calc(10% + 150px);
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(20px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}

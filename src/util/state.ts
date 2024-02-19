@@ -27,36 +27,38 @@ export class UserStore extends NState<Viewer> {
 
   public set id(id: number) {
     this.setState({ id });
+    localStorage.setItem("user", JSON.stringify(this.state));
   }
 
   public set name(name: string) {
     this.setState({ name });
+    localStorage.setItem("user", JSON.stringify(this.state));
   }
 
   public set avatar(avatar: Viewer["avatar"]) {
     this.setState({ avatar });
+    localStorage.setItem("user", JSON.stringify(this.state));
   }
 
   public set token(token: Viewer["token"]) {
     this.setState({ token });
+    localStorage.setItem("user", JSON.stringify(this.state));
   }
 
   public setData(user: Viewer) {
     this.setState(user);
+    localStorage.setItem("user", JSON.stringify(user));
   }
 
   public checkLogin() {
     const timeNow = new Date().getTime();
 
     if (!this.state.token) return false;
+    if (!this.state.token.accessToken) return false;
     if (!this.state.token.expiresIn) return false;
     if (!this.state.token.acquiredAt) return false;
 
-    if (timeNow > this.state.token.expiresIn + this.state.token.acquiredAt) {
-      return false;
-    } else {
-      return true;
-    }
+    return timeNow < this.state.token.expiresIn + this.state.token.acquiredAt;
   }
 }
 
@@ -77,20 +79,33 @@ export class ListStore extends NState<ListData> {
     return this.state.history;
   }
 
+  public get lastFetched() {
+    return this.state.lastFetched;
+  }
+
+  public set lastFetched(lastFetched: ListData["lastFetched"]) {
+    this.setState({ lastFetched });
+    localStorage.setItem("lists", JSON.stringify(this.state));
+  }
+
   public set choice(choice: ListData["choice"]) {
     this.setState({ choice });
+    localStorage.setItem("lists", JSON.stringify(this.state));
   }
 
   public set entries(entries: ListData["entries"]) {
     this.setState({ entries });
+    localStorage.setItem("lists", JSON.stringify(this.state));
   }
 
   public set currentEntry(currentEntry: ListData["currentEntry"]) {
     this.setState({ currentEntry });
+    localStorage.setItem("lists", JSON.stringify(this.state));
   }
 
   public set history(history: ListData["history"]) {
     this.setState({ history });
+    localStorage.setItem("lists", JSON.stringify(this.state));
   }
 
   public get animeList() {
@@ -103,10 +118,12 @@ export class ListStore extends NState<ListData> {
 
   public set animeList(anime: ListData["entries"]["anime"]) {
     this.setState({ entries: { ...this.state.entries, anime } });
+    localStorage.setItem("lists", JSON.stringify(this.state));
   }
 
   public set mangaList(manga: ListData["entries"]["manga"]) {
     this.setState({ entries: { ...this.state.entries, manga } });
+    localStorage.setItem("lists", JSON.stringify(this.state));
   }
 
   public get animeHistory() {
@@ -119,10 +136,12 @@ export class ListStore extends NState<ListData> {
 
   public set animeHistory(animeHistory: ListData["history"]["anime"]) {
     this.setState({ history: { ...this.state.history, anime: animeHistory } });
+    localStorage.setItem("lists", JSON.stringify(this.state));
   }
 
   public set mangaHistory(mangaHistory: ListData["history"]["manga"]) {
     this.setState({ history: { ...this.state.history, manga: mangaHistory } });
+    localStorage.setItem("lists", JSON.stringify(this.state));
   }
 
   public getEntry(type: "anime" | "manga", id: number) {
@@ -131,6 +150,7 @@ export class ListStore extends NState<ListData> {
 
   public setData(data: ListData) {
     this.setState(data);
+    localStorage.setItem("lists", JSON.stringify(this.state));
   }
 }
 
@@ -141,6 +161,7 @@ export class SettingsStore extends NState<Settings> {
 
   public set scoreSystem(scoreSystem: Settings["scoreSystem"]) {
     this.setState({ scoreSystem });
+    localStorage.setItem("settings", JSON.stringify(this.state));
   }
 
   public get advancedScoring() {
@@ -149,6 +170,7 @@ export class SettingsStore extends NState<Settings> {
 
   public set advancedScoring(advancedScoring: Settings["advancedScoring"]) {
     this.setState({ advancedScoring });
+    localStorage.setItem("settings", JSON.stringify(this.state));
   }
 
   public get advCategories() {
@@ -157,6 +179,7 @@ export class SettingsStore extends NState<Settings> {
 
   public set advCategories(advCategories: Settings["advCategories"]) {
     this.setState({ advCategories });
+    localStorage.setItem("settings", JSON.stringify(this.state));
   }
 
   public get enabledLists() {
@@ -165,6 +188,7 @@ export class SettingsStore extends NState<Settings> {
 
   public set enabledLists(enabledLists: Settings["enabledLists"]) {
     this.setState({ enabledLists });
+    localStorage.setItem("settings", JSON.stringify(this.state));
   }
 
   public set enabledCurrentList(
@@ -173,6 +197,7 @@ export class SettingsStore extends NState<Settings> {
     this.setState({
       enabledLists: { ...this.state.enabledLists, current: enabledCurrentList },
     });
+    localStorage.setItem("settings", JSON.stringify(this.state));
   }
 
   public set enabledCompletedList(
@@ -184,6 +209,7 @@ export class SettingsStore extends NState<Settings> {
         completed: enabledCompletedList,
       },
     });
+    localStorage.setItem("settings", JSON.stringify(this.state));
   }
 
   public set enabledPausedList(
@@ -192,6 +218,7 @@ export class SettingsStore extends NState<Settings> {
     this.setState({
       enabledLists: { ...this.state.enabledLists, paused: enabledPausedList },
     });
+    localStorage.setItem("settings", JSON.stringify(this.state));
   }
 
   public set enabledPlanningList(
@@ -203,6 +230,7 @@ export class SettingsStore extends NState<Settings> {
         planning: enabledPlanningList,
       },
     });
+    localStorage.setItem("settings", JSON.stringify(this.state));
   }
 
   public set enabledDroppedList(
@@ -211,6 +239,7 @@ export class SettingsStore extends NState<Settings> {
     this.setState({
       enabledLists: { ...this.state.enabledLists, dropped: enabledDroppedList },
     });
+    localStorage.setItem("settings", JSON.stringify(this.state));
   }
 
   public get lastFetched() {
@@ -219,10 +248,12 @@ export class SettingsStore extends NState<Settings> {
 
   public set lastFetched(lastFetched: Settings["lastFetched"]) {
     this.setState({ lastFetched });
+    localStorage.setItem("settings", JSON.stringify(this.state));
   }
 
   public setData(settings: Settings) {
     this.setState(settings);
+    localStorage.setItem("settings", JSON.stringify(this.state));
   }
 }
 

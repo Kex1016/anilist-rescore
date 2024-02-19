@@ -1,98 +1,75 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import App from "./App.tsx";
 import "./index.css";
 
-import RootPage from "./Root";
-
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { NextUIProvider } from "@nextui-org/react";
-import HomePage from "./pages/Home";
-import ErrorPage from "./ErrorPage";
-import LoginPage from "./pages/Login";
-import DashboardPage from "./pages/Dashboard";
-import ListViewPage from "./pages/ListView";
-
-import { userStore, listStore, settingsStore } from "./util/store";
+import { listStore, settingsStore, userStore } from "@/util/state.ts";
 import {
   defaultListData,
   defaultSettings,
   defaultViewerData,
-  ListData,
-  Settings,
-  Viewer,
-} from "./types/UserData";
+} from "@/types/UserData.ts";
 
-export const router = createBrowserRouter([
+import HomePage from "@/pages/Home.tsx";
+import LoginPage from "@/pages/Login.tsx";
+import SettingsPage from "@/pages/Settings.tsx";
+import ListPage from "./pages/List.tsx";
+
+const router = createBrowserRouter([
   {
     path: "/",
-    element: <RootPage />,
-    errorElement: <ErrorPage />,
+    element: <App />,
+    errorElement: <div>404</div>,
     children: [
       {
         path: "/",
         element: <HomePage />,
-        id: "Home",
       },
       {
-        path: "/about",
-        element: <div className="pt-16">About</div>,
-        id: "About",
+        path: "/login",
+        element: <LoginPage />,
       },
       {
-        path: "/dashboard",
-        element: <DashboardPage />,
-        id: "Dashboard",
-      },
-      {
-        path: "/list",
-        element: <div className="pt-16">lists</div>,
-        id: "List View",
+        path: "/settings",
+        element: <SettingsPage />,
       },
       {
         path: "/list/:type",
-        element: <ListViewPage />,
-        id: "List View with type",
+        element: <ListPage />,
       },
     ],
-    // TODO: Editor
-    // Editor must have a History. (planned for v1.1)
-    // TODO: About
-    // TODO: List View
-  },
-  {
-    path: "/login",
-    element: <LoginPage />,
-    errorElement: <ErrorPage />,
   },
 ]);
 
-localStorage.getItem("userData") === null &&
-  localStorage.setItem("userData", JSON.stringify(defaultViewerData));
+// Set up stores
+const settings = localStorage.getItem("settings");
+const listData = localStorage.getItem("lists");
+const viewerData = localStorage.getItem("user");
 
-localStorage.getItem("lists") === null &&
-  localStorage.setItem("lists", JSON.stringify(defaultListData));
+if (!settings) {
+  console.log("No settings found, setting default settings");
+  settingsStore.setData(defaultSettings);
+} else {
+  settingsStore.setData(JSON.parse(settings));
+}
 
-localStorage.getItem("settings") === null &&
-  localStorage.setItem("settings", JSON.stringify(defaultSettings));
+if (!listData) {
+  console.log("No list data found, setting default list data");
+  listStore.setData(defaultListData);
+} else {
+  listStore.setData(JSON.parse(listData));
+}
 
-const initUser = JSON.parse(
-  localStorage.getItem("userData") as string
-) as Viewer;
-const initLists = JSON.parse(
-  localStorage.getItem("lists") as string
-) as ListData;
-const initSettings = JSON.parse(
-  localStorage.getItem("settings") as string
-) as Settings;
-
-userStore.setData(initUser);
-listStore.setData(initLists);
-settingsStore.setData(initSettings);
+if (!viewerData) {
+  console.log("No user data found, setting default user data");
+  userStore.setData(defaultViewerData);
+} else {
+  userStore.setData(JSON.parse(viewerData));
+}
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <NextUIProvider>
-      <RouterProvider router={router} />
-    </NextUIProvider>
+    <RouterProvider router={router} />
   </React.StrictMode>
 );

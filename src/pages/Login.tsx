@@ -1,196 +1,135 @@
-import { useEffect, useState } from "react";
+import { userStore, settingsStore, listStore } from "@/util/state";
+import "./Home.css";
+import { useEffect, useRef, useState } from "react";
 import { Navigate } from "react-router-dom";
+import CircularProgress from "@/components/CircularProgress";
+import { MediaList, Viewer } from "@/util/aniList";
+import { defaultListData, defaultSettings } from "@/types/UserData";
 
-import { Spinner } from "@nextui-org/react";
-import BackgroundComponent from "../components/Background";
-import NavComp from "../components/Nav";
-import {
-  Settings,
-  Viewer as ViewerType,
-  defaultSettings,
-  ListData,
-  defaultViewerData,
-} from "../types/UserData";
-import { checkLogin } from "../util/checkLogin";
-import { MediaList, Viewer } from "../util/aniList";
-import { defaultListData } from "../types/UserData";
+function LoginPage() {
+  const [redirect, setRedirect] = useState<string | null>(null);
+  const [status, setStatus] = useState<string>("Logging you in");
 
-import {
-  userStore,
-  UserStore,
-  settingsStore,
-  SettingsStore,
-  listStore,
-  ListStore,
-} from "../util/store";
-
-const LoginPage = ({
-  user = userStore,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  settings = settingsStore,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  list = listStore,
-}: {
-  user?: UserStore;
-  settings?: SettingsStore;
-  list?: ListStore;
-}) => {
-  const userData = user.useState();
-
-  const [loggedIn, setLoggedIn] = useState(false);
-
+  const firstTime = useRef(true);
   useEffect(() => {
-    if (userStore.checkLogin()) {
-      setLoggedIn(true);
+    const loggedIn = userStore.checkLogin();
+    if (loggedIn && firstTime.current) {
+      // Navigate to /
+      setRedirect("/");
       return;
     }
 
-    if (!userData) {
-      userStore.setData(defaultViewerData);
-      localStorage.setItem("userData", JSON.stringify(defaultViewerData));
-    }
+    firstTime.current = false;
 
-    const url = new URL(window.location.href.replace("#", "?"));
-    const accessToken = url.searchParams.get("access_token");
-    const tokenType = url.searchParams.get("token_type");
-    const expiresIn = url.searchParams.get("expires_in");
+    const params = new URLSearchParams(window.location.hash.slice(1));
+    const accessToken = params.get("access_token");
+    const tokenType = params.get("token_type");
+    const expiresIn = params.get("expires_in");
 
-    // FIXME: Nope. Not working. At all.
-    if (accessToken && tokenType && expiresIn) {
-      console.log("Missing token");
+    console.log(accessToken, tokenType, expiresIn);
 
-      const _d = {
-        ...defaultViewerData,
-        token: {
-          accessToken: accessToken,
-          tokenType: tokenType,
-          expiresIn: parseInt(expiresIn) || 0,
-          acquiredAt: Date.now(),
-        },
-      };
+    if (!accessToken || !tokenType || !expiresIn)
+      window.location.href =
+        "https://anilist.co/api/v2/oauth/authorize?client_id=376&response_type=token";
 
-      // Set the user token
-      userStore.setData(_d);
-      localStorage.setItem("userData", JSON.stringify(_d));
-    }
-
-    if (!accessToken && !checkLogin(userData)) {
-      console.log("Redirecting to login page");
-      window.location.href = `https://anilist.co/api/v2/oauth/authorize?client_id=376&response_type=token`;
-    }
-
-    const getViewer = async () => {
-      console.log("Fetching user data");
-      const viewer = await Viewer();
-
-      if (viewer) {
-        console.log("Got user data");
-
-        const _d: ViewerType = {
-          ...userData,
-          id: viewer.id,
-          name: viewer.name,
-          avatar: viewer.avatar,
-          token: {
-            accessToken: userData.token.accessToken,
-            tokenType: userData.token.tokenType,
-            expiresIn: userData.token.expiresIn,
-            acquiredAt: userData.token.acquiredAt,
-          },
-        };
-        const _s: Settings = {
-          ...defaultSettings,
-          scoreSystem: viewer.mediaListOptions.scoreFormat,
-          advancedScoring:
-            viewer.mediaListOptions.scoring.advancedScoringEnabled,
-          advCategories: viewer.mediaListOptions.scoring.advancedScoring,
-        };
-
-        // Save the user data
-        localStorage.setItem("userData", JSON.stringify(_d));
-        userStore.setData(_d);
-
-        localStorage.setItem("settings", JSON.stringify(_s));
-        settingsStore.setData(_s);
-
-        // FIXME: This can definitely be optimized
-        const animeList = await MediaList("ANIME");
-
-        if (animeList) {
-          console.log("Got anime list");
-
-          // Set a fromList property on each entry
-          for (const list of animeList) {
-            for (const entry of list.entries) {
-              const i = animeList.indexOf(list);
-              const j = animeList[i].entries.indexOf(entry);
-              animeList[i].entries[j].fromList = list.name;
-            }
-          }
-
-          // Flatten the list
-          const flatList = animeList.flatMap((list) => list.entries);
-          const _l: ListData = {
-            ...defaultListData,
-            entries: {
-              anime: flatList,
-              manga: listStore.mangaList,
-            },
-          };
-
-          // Save the user data
-          localStorage.setItem("lists", JSON.stringify(_l));
-          listStore.setData(_l);
-        }
-
-        const mangaList = await MediaList("MANGA");
-
-        if (mangaList) {
-          console.log("Got manga list");
-
-          // Set a fromList property on each entry
-          for (const list of mangaList) {
-            for (const entry of list.entries) {
-              const i = mangaList.indexOf(list);
-              const j = mangaList[i].entries.indexOf(entry);
-              mangaList[i].entries[j].fromList = list.name;
-            }
-          }
-
-          // Flatten the list
-          const flatList = mangaList.flatMap((list) => list.entries);
-          const _l: ListData = {
-            ...defaultListData,
-            entries: {
-              anime: listStore.animeList,
-              manga: flatList,
-            },
-          };
-
-          // Save the user data
-          localStorage.setItem("lists", JSON.stringify(_l));
-          listStore.setData(_l);
-        }
-
-        // Save the user data
-        setLoggedIn(true);
-      }
+    // Set token
+    userStore.token = {
+      accessToken: accessToken!,
+      tokenType: tokenType!,
+      expiresIn: Number(expiresIn!),
+      acquiredAt: Date.now(),
     };
 
-    if (userStore.checkLogin() && !userData.id) getViewer();
-  }, [userData]);
+    // Get user
+    setStatus("Fetching user data");
+    Viewer().then((user) => {
+      if (!user) {
+        // Navigate to /
+        setRedirect("/");
+        return;
+      }
+
+      userStore.setData({
+        id: user.id,
+        name: user.name,
+        avatar: {
+          large: user.avatar.large,
+          medium: user.avatar.medium,
+        },
+        token: userStore.token,
+      });
+
+      // Set settings
+      settingsStore.setData({
+        ...defaultSettings,
+        advancedScoring: user.mediaListOptions.scoring.advancedScoringEnabled,
+        advCategories: user.mediaListOptions.scoring.advancedScoring,
+        scoreSystem: user.mediaListOptions.scoreFormat,
+      });
+
+      // Get lists
+      setStatus("Fetching anime list");
+      MediaList("ANIME").then((list) => {
+        if (!list) {
+          // Navigate to /
+          setRedirect("/");
+          return;
+        }
+
+        // Get rid of custom lists
+        const animeFiltered = list.filter((x) => !x.isCustomList);
+        // Flatten categories
+        const categories = animeFiltered.flatMap((x) => x.entries);
+
+        listStore.setData({
+          ...defaultListData,
+          entries: {
+            anime: categories,
+            manga: defaultListData.entries.manga,
+          },
+        });
+
+        // Get manga list
+        setStatus("Fetching manga list");
+        MediaList("MANGA").then((list) => {
+          if (!list) {
+            // Navigate to /
+            setRedirect("/");
+            return;
+          }
+
+          // Get rid of custom lists
+          const mangaFiltered = list.filter((x) => !x.isCustomList);
+          // Flatten categories
+          const categories = mangaFiltered.flatMap((x) => x.entries);
+
+          listStore.setData({
+            ...defaultListData,
+            entries: {
+              anime: listStore.entries.anime,
+              manga: categories,
+            },
+          });
+
+          // Navigate to /
+          setRedirect("/");
+        });
+      });
+    });
+  }, []);
 
   return (
     <>
-      <BackgroundComponent />
-      <NavComp />
-      <div className="container lg:max-w-6xl mx-auto px-4 lg:px-0 md:max-w-full flex justify-center items-center gap-3 h-[calc(100vh_-_65px)]">
-        <Spinner size="lg" />
-        <div className="text-2xl">Logging in...</div>
-        {userStore.checkLogin() && loggedIn && <Navigate to="/" />}
-      </div>
+      {redirect && <Navigate to={redirect} />}
+      <section className="min-h-[calc(100vh-6rem)] flex items-center gap-5">
+        <CircularProgress size="lg" />
+        <h1 className="text-4xl font-bold">
+          {status}
+          <span className="animate-pulse">...</span>
+        </h1>
+      </section>
     </>
   );
-};
+}
 
 export default LoginPage;
