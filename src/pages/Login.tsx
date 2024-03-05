@@ -26,8 +26,6 @@ function LoginPage() {
     const tokenType = params.get("token_type");
     const expiresIn = params.get("expires_in");
 
-    console.log(accessToken, tokenType, expiresIn);
-
     if (!accessToken || !tokenType || !expiresIn)
       window.location.href =
         "https://anilist.co/api/v2/oauth/authorize?client_id=376&response_type=token";

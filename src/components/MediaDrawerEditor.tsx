@@ -6,6 +6,7 @@ import { Input } from "./ui/input";
 import { useEffect, useState } from "react";
 import { SaveScore } from "@/util/aniList";
 import { toast } from "sonner";
+import { scoreSystemLookup, scoreSystemNames } from "@/types/UserData";
 
 // Extend the MediaDrawerProps interface
 export interface MediaDrawerEditorProps extends MediaDrawerProps {
@@ -63,11 +64,26 @@ export function MediaDrawerEditor({ entry, onClose }: MediaDrawerEditorProps) {
               <div className="italic">
                 {entry.media.format} {entry.media.startDate.year}
               </div>
+              {userSettings.scoreSystem === "POINT_10_DECIMAL" && (
+                // a warning that the user will have to use 0-100 instead of 0-10
+                <div className="text-orange-500 text-sm mt-3">
+                  Warning: Your score system (
+                  <span className="text-orange-700 italic">
+                    {
+                      scoreSystemNames[
+                        userSettings.scoreSystem as keyof typeof scoreSystemNames
+                      ]
+                    }
+                  </span>
+                  ) uses 0-100 instead of 0-10. This is a limitation of
+                  AniList's API.
+                </div>
+              )}
               <div className="flex flex-row gap-5 items-center mt-3">
                 {userSettings.advancedScoring ? (
-                  userSettings.advCategories.map((category) => {
+                  userSettings.advCategories.map((category, i) => {
                     return (
-                      <div className="flex flex-col items-center gap-1">
+                      <div className="flex flex-col items-center gap-1" key={i}>
                         <div className="font-bold">{category}</div>
                         <Input
                           type="number"
@@ -76,6 +92,7 @@ export function MediaDrawerEditor({ entry, onClose }: MediaDrawerEditorProps) {
                           max={100}
                           id={`score-input-${category}`}
                           value={newAdvScores[category]}
+                          autoFocus={i === 0}
                           onChange={(e) => {
                             setNewAdvScores({
                               ...newAdvScores,
@@ -107,15 +124,18 @@ export function MediaDrawerEditor({ entry, onClose }: MediaDrawerEditorProps) {
                     type="number"
                     className="w-16 score-input"
                     min={0}
-                    max={100}
+                    max={scoreSystemLookup[userSettings.scoreSystem]}
                     value={newScore}
                     onChange={(e) => {
                       setNewScore(parseInt(e.target.value));
                     }}
+                    autoFocus
                   />
                 )}
                 <div className="flex flex-row">
-                  <div>New score:</div>
+                  <div className="font-bold">
+                    {userSettings.advancedScoring ? "Average:" : "New Score:"}
+                  </div>
                   <div className="ml-2">
                     {userSettings.advancedScoring
                       ? // HACK: This is some voodoo to check if the average is NaN or not

@@ -31,6 +31,8 @@ function ListPage() {
         setList(listStore.entries[params.type].slice(0, 60));
       }
 
+      listStore.choice = params.type as ListPageParams;
+
       return;
     }
 

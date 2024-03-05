@@ -1,0 +1,4 @@
+/* .editor-back-container {} */
+.editor-back-container:hover .media-preview {
+  opacity: 1;
+}

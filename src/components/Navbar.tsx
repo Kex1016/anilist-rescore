@@ -225,7 +225,7 @@ function Navbar() {
         </div>
       )}
 
-      <div className="theme-toggle">
+      <div className="theme-toggle ml-3">
         <ThemeToggle />
       </div>
 

@@ -15,12 +15,18 @@ import HomePage from "@/pages/Home.tsx";
 import LoginPage from "@/pages/Login.tsx";
 import SettingsPage from "@/pages/Settings.tsx";
 import ListPage from "./pages/List.tsx";
+import EditorPage from "./pages/Editor.tsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
-    errorElement: <div>404</div>,
+    errorElement: (
+      <div>
+        <h1>Error</h1>
+        <p>There was an error loading the page</p>
+      </div>
+    ),
     children: [
       {
         path: "/",
@@ -37,6 +43,10 @@ const router = createBrowserRouter([
       {
         path: "/list/:type",
         element: <ListPage />,
+      },
+      {
+        path: "/editor/:type/:id",
+        element: <EditorPage />,
       },
     ],
   },

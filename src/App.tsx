@@ -14,6 +14,7 @@ import ListPage from "./pages/List.tsx";
 
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "./components/ThemeProvider.tsx";
+import EditorPage from "./pages/Editor.tsx";
 
 function App() {
   const location = useLocation();
@@ -40,11 +41,13 @@ function App() {
           }}
           asMain
         >
+          {/* Do not question why this is here. If I delete this, the page transitions stop working. */}
           <Routes location={displayLocation}>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/list/:type" element={<ListPage />} />
+            <Route path="/editor/:type/:id" element={<EditorPage />} />
           </Routes>
         </Container>
         <Footer />

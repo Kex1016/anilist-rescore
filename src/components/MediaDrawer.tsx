@@ -11,6 +11,9 @@ import MediaCard from "./MediaCard";
 import { useState } from "react";
 import { MediaDrawerEntry } from "./MediaDrawerEntry";
 import { MediaDrawerEditor } from "./MediaDrawerEditor";
+import { Navigate } from "react-router-dom";
+import { listStore } from "@/util/state";
+import { toast } from "sonner";
 
 export type MediaDrawerProps = {
   entry: Entry;
@@ -19,6 +22,9 @@ export type MediaDrawerProps = {
 export function MediaDrawer({ entry }: MediaDrawerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [secondIsOpen, setSecondIsOpen] = useState(false);
+  const [goToEditor, setGoToEditor] = useState<string | undefined>(undefined);
+
+  const userLists = listStore.useState();
 
   // Handle the drawers. If the second one is open, then closes, close the first one too
   const handleSecondDrawer = (isOpen: boolean) => {
@@ -73,10 +79,32 @@ export function MediaDrawer({ entry }: MediaDrawerProps) {
             >
               Edit this entry
             </Button>
-            <Button className="container">Start editing from here</Button>
+            <Button
+              className="container"
+              onClick={() => {
+                // Get the index and type of the entry
+                const type = userLists.choice;
+                if (!type) return;
+                if (type === "unset") return;
+
+                const index = userLists.entries[type].findIndex(
+                  (e) => e.id === entry.id
+                );
+
+                if (index === -1) {
+                  toast("Entry not found");
+                  return;
+                }
+
+                setGoToEditor(`/editor/${type}/${index}`);
+              }}
+            >
+              Start editing from here
+            </Button>
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
+      {goToEditor && <Navigate to={goToEditor} />}
     </>
   );
 }
