@@ -212,15 +212,16 @@ export async function SaveHistory(
 ) {
   // Save history to AniList:
   // - Done with SaveMediaListEntry
-  // - 20 entries per request
+  // - 10 entries per request
   // - 4 requests per second
   // - Every entry needs to be saved individually, so we need to batch them in groups of 20
 
   const token = Token();
   if (!token) return undefined;
 
-  for (let i = 0; i < history.length; i += 20) {
-    const entries = history.slice(i, i + 20);
+  const len = 10;
+  for (let i = 0; i < history.length; i += len) {
+    const entries = history.slice(i, i + len);
 
     let query = "mutation{";
     for (const entry of entries) {
