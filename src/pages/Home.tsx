@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import {Button} from "@/components/ui/button";
 
 import {
   Drawer,
@@ -12,9 +12,11 @@ import {
 
 import {Link, Navigate} from "react-router-dom";
 
-import { userStore } from "@/util/state";
+import {userStore} from "@/util/state";
 import "./Home.css";
 import {rootUrl} from "@/main.tsx";
+import {useEffect} from "react";
+import {setupMatomo} from "@/util/matomo.ts";
 
 function HomePage() {
   // const store = userStore.useState();
@@ -22,14 +24,18 @@ function HomePage() {
   const accessToken = params.get("access_token");
   const tokenType = params.get("token_type");
   const expiresIn = params.get("expires_in");
-  
+
+  useEffect(() => {
+    setupMatomo();
+  }, []);
+
   // Redirect to AniList login if all three are present
   if (accessToken && tokenType && expiresIn) {
     return (
-      <Navigate to={`${rootUrl}/login${window.location.hash}`} />
+      <Navigate to={`${rootUrl}/login${window.location.hash}`}/>
     );
   }
-  
+
 
   return (
     <section className="min-h-[calc(100vh-6rem)] flex items-center gap-10">
@@ -81,10 +87,10 @@ function HomePage() {
       </div>
 
       <div className="column floating-images min-h-[500px] hidden lg:block">
-        <img src={`${rootUrl}/home/k-on.png`} alt="K-ON" />
-        <img src={`${rootUrl}/home/lovelive.jpg`} alt="Love Live!" />
-        <img src={`${rootUrl}/home/elaina.jpg`} alt="Majo no Tabitabi" />
-        <img src={`${rootUrl}/home/madoka.jpg`} alt="Mahou Shoujo Madoka Magica" />
+        <img src={`${rootUrl}/home/k-on.png`} alt="K-ON"/>
+        <img src={`${rootUrl}/home/lovelive.jpg`} alt="Love Live!"/>
+        <img src={`${rootUrl}/home/elaina.jpg`} alt="Majo no Tabitabi"/>
+        <img src={`${rootUrl}/home/madoka.jpg`} alt="Mahou Shoujo Madoka Magica"/>
       </div>
     </section>
   );

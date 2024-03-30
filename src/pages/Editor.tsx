@@ -22,6 +22,7 @@ import {Link} from "react-router-dom";
 import {MdDelete, MdArrowBack, MdArrowForward} from "react-icons/md";
 import {SaveHistory} from "@/util/aniList";
 import {rootUrl} from "@/main.tsx";
+import {setupMatomo} from "@/util/matomo.ts";
 
 type EditorPageType = "anime" | "manga";
 type EditorPageId = string;
@@ -75,6 +76,8 @@ function EditorPage() {
 
   // TODO: Replace returns with actual logic.
   useEffect(() => {
+    setupMatomo();
+
     if (!id || !type) {
       setError("Invalid entry");
       return;

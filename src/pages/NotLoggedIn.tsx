@@ -1,7 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { NavLink } from "react-router-dom";
+import {useEffect} from "react";
+import {setupMatomo} from "@/util/matomo.ts";
 
 function NotLoggedInPage() {
+  useEffect(() => {
+    setupMatomo();
+  }, []);
+  
   return (
     <section className="min-h-[calc(100vh-6rem)] flex flex-col justify-center items-start gap-5">
       <h1 className="text-4xl font-bold text-foreground">

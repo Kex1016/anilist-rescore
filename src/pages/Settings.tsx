@@ -9,10 +9,11 @@ import {
 import {List, ListData, Settings, scoreSystemNames} from "@/types/UserData";
 import {fetchScoringSettings, MediaList} from "@/util/aniList";
 import {listStore, settingsStore, userStore} from "@/util/state";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import NotLoggedInPage from "./NotLoggedIn";
 import {MdStar, MdList, MdQuestionMark} from "react-icons/md";
 import {Checkbox} from "@/components/ui/checkbox";
+import {setupMatomo} from "@/util/matomo.ts";
 
 function SettingsPage() {
   const lists = listStore.useState();
@@ -121,6 +122,10 @@ function SettingsPage() {
       list: false,
     });
   }
+
+  useEffect(() => {
+    setupMatomo();
+  }, [])
 
   if (!userStore.checkLogin()) return <NotLoggedInPage/>;
 
