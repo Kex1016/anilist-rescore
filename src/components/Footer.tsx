@@ -34,7 +34,7 @@ function Footer() {
         </div>
         <div className="footer-left">
           <div className="footer-links flex flex-col flex-wrap *:flex *:flex-row *:items-center *:gap-1">
-            <Link href="https://github.com/Kex1016/anilist-rescorer">
+            <Link href="https://github.com/Kex1016/anilist-rescore">
               <GrGithub/> GitHub
             </Link>
             <Link href="https://ko-fi.com/the_cakes">
