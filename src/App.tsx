@@ -57,7 +57,7 @@ function App() {
       return;
     }
     if (location !== displayLocation) setTransistionStage("fadeOut");
-  }, [location, displayLocation]);
+  }, [location, displayLocation, settings.lastFetched]);
 
   return (
     <>
