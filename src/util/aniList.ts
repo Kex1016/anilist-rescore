@@ -3,7 +3,7 @@ import {
   type Viewer as ViewerType,
   ScoreSystem,
   Entry,
-  HistoryType,
+  HistoryType, Settings,
 } from "@/types/UserData";
 import { listStore, settingsStore, userStore } from "./state";
 import { toast } from "sonner";
@@ -303,3 +303,19 @@ export async function SaveHistory(
 
   toast("Saved history to AniList!");
 }
+
+export async function fetchScoringSettings() {
+  const _v = await Viewer();
+
+  if (!_v) return;
+
+  const _s: Settings = {
+    scoreSystem: _v.mediaListOptions.scoreFormat,
+    advancedScoring: _v.mediaListOptions.scoring.advancedScoringEnabled,
+    advCategories: _v.mediaListOptions.scoring.advancedScoring,
+    lastFetched: Date.now(),
+    enabledLists: settingsStore.enabledLists
+  };
+
+  return _s;
+} 
