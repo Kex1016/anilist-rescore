@@ -151,7 +151,7 @@ function Navbar() {
                     Code that by no means is tidy.
                   </ListItem>
                   <ListItem
-                    href="https://anilist.co/cakes"
+                    href="https://anilist.co/user/cakes"
                     target="_blank"
                     title="AniList"
                   >
