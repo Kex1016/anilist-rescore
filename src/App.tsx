@@ -18,6 +18,7 @@ import EditorPage from "./pages/Editor.tsx";
 import {settingsStore, userStore} from "@/util/state.ts";
 import {toast} from "sonner";
 import {fetchScoringSettings} from "@/util/aniList.ts";
+import {setupMatomo} from "@/util/matomo.ts";
 
 function App() {
   const location = useLocation();
@@ -29,6 +30,7 @@ function App() {
 
   useEffect(() => {
     if (firstTime.current) {
+      setupMatomo();
       firstTime.current = false;
 
       if (!settings.lastFetched || settings.lastFetched + 1000 * 60 * 60 * 24 < Date.now()) {

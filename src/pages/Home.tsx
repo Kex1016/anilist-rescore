@@ -15,8 +15,6 @@ import {Link, Navigate} from "react-router-dom";
 import {userStore} from "@/util/state";
 import "./Home.css";
 import {rootUrl} from "@/main.tsx";
-import {useEffect} from "react";
-import {setupMatomo} from "@/util/matomo.ts";
 
 function HomePage() {
   // const store = userStore.useState();
@@ -24,10 +22,6 @@ function HomePage() {
   const accessToken = params.get("access_token");
   const tokenType = params.get("token_type");
   const expiresIn = params.get("expires_in");
-
-  useEffect(() => {
-    setupMatomo();
-  }, []);
 
   // Redirect to AniList login if all three are present
   if (accessToken && tokenType && expiresIn) {

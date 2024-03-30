@@ -7,7 +7,6 @@ import { Entry } from "@/types/UserData";
 import { MediaDrawer } from "@/components/MediaDrawer";
 import { Input } from "@/components/ui/input";
 import NotLoggedInPage from "./NotLoggedIn";
-import {setupMatomo} from "@/util/matomo.ts";
 
 type ListPageParams = "anime" | "manga";
 
@@ -23,8 +22,6 @@ function ListPage() {
   const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
-    setupMatomo();
-    
     if (!userStore.checkLogin()) return;
 
     if (firstRender.current) {

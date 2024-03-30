@@ -6,7 +6,6 @@ import CircularProgress from "@/components/CircularProgress";
 import { MediaList, Viewer } from "@/util/aniList";
 import { defaultListData, defaultSettings } from "@/types/UserData";
 import {rootUrl} from "@/main.tsx";
-import {setupMatomo} from "@/util/matomo.ts";
 
 function LoginPage() {
   const [redirect, setRedirect] = useState<string | null>(null);
@@ -14,8 +13,6 @@ function LoginPage() {
 
   const firstTime = useRef(true);
   useEffect(() => {
-    setupMatomo();
-    
     const loggedIn = userStore.checkLogin();
     if (loggedIn && firstTime.current) {
       // Navigate to /
