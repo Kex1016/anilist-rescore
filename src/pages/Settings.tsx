@@ -120,7 +120,7 @@ function SettingsPage() {
       ...loadingStates,
       list: false,
     });
-  };
+  }
 
   if (!userStore.checkLogin()) return <NotLoggedInPage/>;
 
