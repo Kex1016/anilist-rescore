@@ -74,7 +74,7 @@ function HomePage() {
             </Drawer>
           ) : (
             <Button asChild>
-              <a href={`${rootUrl}/login`}>Login with AniList</a>
+              <Link to={`${rootUrl}/login/`}>Login with AniList</Link>
             </Button>
           )}
         </div>
