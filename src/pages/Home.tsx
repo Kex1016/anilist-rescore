@@ -64,17 +64,17 @@ function HomePage() {
                 </DrawerHeader>
                 <DrawerFooter>
                   <Button className="container" asChild>
-                    <Link to="./list/anime">Anime</Link>
+                    <Link to={`${rootUrl}/list/anime`}>Anime</Link>
                   </Button>
                   <Button className="container" asChild>
-                    <Link to="./list/manga">Manga</Link>
+                    <Link to={`${rootUrl}/list/manga`}>Manga</Link>
                   </Button>
                 </DrawerFooter>
               </DrawerContent>
             </Drawer>
           ) : (
             <Button asChild>
-              <a href="./login">Login with AniList</a>
+              <a href={`${rootUrl}/login`}>Login with AniList</a>
             </Button>
           )}
         </div>
