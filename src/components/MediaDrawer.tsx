@@ -14,6 +14,7 @@ import { MediaDrawerEditor } from "./MediaDrawerEditor";
 import { Navigate } from "react-router-dom";
 import { listStore } from "@/util/state";
 import { toast } from "sonner";
+import {rootUrl} from "@/main.tsx";
 
 export type MediaDrawerProps = {
   entry: Entry;
@@ -96,7 +97,7 @@ export function MediaDrawer({ entry }: MediaDrawerProps) {
                   return;
                 }
 
-                setGoToEditor(`/editor/${type}/${index}`);
+                setGoToEditor(`${rootUrl}/editor/${type}/${index}`);
               }}
             >
               Start editing from here

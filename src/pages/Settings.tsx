@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import {Button} from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -6,13 +6,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { List, ListData, Settings, scoreSystemNames } from "@/types/UserData";
-import { MediaList, Viewer } from "@/util/aniList";
-import { listStore, settingsStore, userStore } from "@/util/state";
-import { useState } from "react";
+import {List, ListData, Settings, scoreSystemNames} from "@/types/UserData";
+import {fetchScoringSettings, MediaList} from "@/util/aniList";
+import {listStore, settingsStore, userStore} from "@/util/state";
+import {useState} from "react";
 import NotLoggedInPage from "./NotLoggedIn";
-import { MdStar, MdList, MdQuestionMark } from "react-icons/md";
-import { Checkbox } from "@/components/ui/checkbox";
+import {MdStar, MdList, MdQuestionMark} from "react-icons/md";
+import {Checkbox} from "@/components/ui/checkbox";
 
 function SettingsPage() {
   const lists = listStore.useState();
@@ -24,23 +24,21 @@ function SettingsPage() {
     history: false,
   });
 
-  const fetchScoringSettings = async () => {
+  async function setScoringSettings() {
     setLoadingStates({
       ...loadingStates,
       scoring: true,
     });
 
-    const _v = await Viewer();
-
-    if (!_v) return;
-
-    const _s: Settings = {
-      ...settings,
-      scoreSystem: _v.mediaListOptions.scoreFormat,
-      advancedScoring: _v.mediaListOptions.scoring.advancedScoringEnabled,
-      advCategories: _v.mediaListOptions.scoring.advancedScoring,
-      lastFetched: Date.now(),
-    };
+    const _s = await fetchScoringSettings();
+    if (!_s) {
+      alert("Failed to fetch scoring data from AniList");
+      setLoadingStates({
+        ...loadingStates,
+        scoring: false,
+      });
+      return;
+    }
 
     settingsStore.setData(_s);
 
@@ -48,9 +46,9 @@ function SettingsPage() {
       ...loadingStates,
       scoring: false,
     });
-  };
+  }
 
-  const fetchListSettings = async () => {
+  async function setListSettings() {
     setLoadingStates({
       ...loadingStates,
       list: true,
@@ -124,14 +122,14 @@ function SettingsPage() {
     });
   };
 
-  if (!userStore.checkLogin()) return <NotLoggedInPage />;
+  if (!userStore.checkLogin()) return <NotLoggedInPage/>;
 
   return <section className="settings container py-10 min-h-[100dvh]">
     {/* SCORING SETTINGS */}
     <Card className="mb-5">
       <CardHeader>
         <CardTitle>
-          <MdStar className="inline-block mr-2" /> Scoring
+          <MdStar className="inline-block mr-2"/> Scoring
         </CardTitle>
         <CardDescription>
           Scoring settings for your lists.
@@ -171,7 +169,7 @@ function SettingsPage() {
         <div className="flex flex-col items-center gap-3">
           <Button
             variant="secondary"
-            onClick={fetchScoringSettings}
+            onClick={setScoringSettings}
             disabled={loadingStates.scoring}
           >
             {loadingStates.scoring ? "Loading..." : "Fetch from AniList"}
@@ -188,7 +186,7 @@ function SettingsPage() {
     <Card className="mb-5">
       <CardHeader>
         <CardTitle>
-          <MdList className="inline-block mr-2" /> List
+          <MdList className="inline-block mr-2"/> List
         </CardTitle>
         <CardDescription>
           List settings for your lists. This includes which lists to fetch from AniList.
@@ -215,8 +213,8 @@ function SettingsPage() {
                 <div className="text-muted-foreground">
                   {
                     (lists.entries.anime
-                      .map((entry) => entry.score)
-                      .reduce((a, b) => a + b, 0)
+                        .map((entry) => entry.score)
+                        .reduce((a, b) => a + b, 0)
                       / (lists.entries.anime.filter((entry) => entry.score !== 0)).length
                     ).toFixed(2)
                   }
@@ -243,8 +241,8 @@ function SettingsPage() {
                 <div className="text-muted-foreground">
                   {
                     (lists.entries.manga
-                      .map((entry) => entry.score)
-                      .reduce((a, b) => a + b, 0)
+                        .map((entry) => entry.score)
+                        .reduce((a, b) => a + b, 0)
                       / (lists.entries.manga.filter((entry) => entry.score !== 0)).length
                     ).toFixed(2)
                   }
@@ -345,7 +343,7 @@ function SettingsPage() {
         <div className="flex flex-col items-center gap-3">
           <Button
             variant="secondary"
-            onClick={fetchListSettings}
+            onClick={setListSettings}
             disabled={loadingStates.list}
           >
             {loadingStates.list ? "Loading..." : "Fetch from AniList"}
@@ -362,7 +360,7 @@ function SettingsPage() {
     <Card>
       <CardHeader>
         <CardTitle>
-          <MdQuestionMark className="inline-block mr-2" /> More settings may be coming soon!
+          <MdQuestionMark className="inline-block mr-2"/> More settings may be coming soon!
         </CardTitle>
         <CardDescription>
           Be sure to suggest any features you'd like to see on the GitHub repo!

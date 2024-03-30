@@ -10,26 +10,47 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 
-import { Link } from "react-router-dom";
+import {Link, Navigate} from "react-router-dom";
 
 import { userStore } from "@/util/state";
 import "./Home.css";
+import {rootUrl} from "@/main.tsx";
 
 function HomePage() {
   // const store = userStore.useState();
+  const params = new URLSearchParams(window.location.hash.slice(1));
+  const accessToken = params.get("access_token");
+  const tokenType = params.get("token_type");
+  const expiresIn = params.get("expires_in");
+  
+  // Redirect to AniList login if all three are present
+  if (accessToken && tokenType && expiresIn) {
+    return (
+      <Navigate to={`${rootUrl}/login${window.location.hash}`} />
+    );
+  }
+  
 
   return (
     <section className="min-h-[calc(100vh-6rem)] flex items-center gap-10">
       <div className="column">
-        <h1 className="text-4xl font-bold">AL Rescorer</h1>
-        <p className="text-lg mt-4">
+        <h1 className="text-4xl lg:text-9xl font-bold">
+          <div>
+            Ani
+            <span className="text-primary">List</span>
+          </div>
+          <div>
+            Rescorer
+          </div>
+        </h1>
+        <p className="text-5xl lg:text-3xl mt-4">
           A tool to quickly rescore your AniList entries.
         </p>
 
-        <div className="mt-4">
+        <div className="mt-5">
           {userStore.checkLogin() ? (
             <Drawer>
-              <DrawerTrigger>
+              <DrawerTrigger asChild>
                 <Button>Get Started</Button>
               </DrawerTrigger>
               <DrawerContent className="max-w-[1100px] w-full mx-auto">
@@ -43,27 +64,27 @@ function HomePage() {
                 </DrawerHeader>
                 <DrawerFooter>
                   <Button className="container" asChild>
-                    <Link to="/list/anime">Anime</Link>
+                    <Link to="./list/anime">Anime</Link>
                   </Button>
                   <Button className="container" asChild>
-                    <Link to="/list/manga">Manga</Link>
+                    <Link to="./list/manga">Manga</Link>
                   </Button>
                 </DrawerFooter>
               </DrawerContent>
             </Drawer>
           ) : (
             <Button asChild>
-              <a href="/login">Login with AniList</a>
+              <a href="./login">Login with AniList</a>
             </Button>
           )}
         </div>
       </div>
 
       <div className="column floating-images min-h-[500px] hidden lg:block">
-        <img src="/home/k-on.png" alt="K-ON" />
-        <img src="/home/lovelive.jpg" alt="Love Live!" />
-        <img src="/home/elaina.jpg" alt="Majo no Tabitabi" />
-        <img src="/home/madoka.jpg" alt="Mahou Shoujo Madoka Magica" />
+        <img src={`${rootUrl}/home/k-on.png`} alt="K-ON" />
+        <img src={`${rootUrl}/home/lovelive.jpg`} alt="Love Live!" />
+        <img src={`${rootUrl}/home/elaina.jpg`} alt="Majo no Tabitabi" />
+        <img src={`${rootUrl}/home/madoka.jpg`} alt="Mahou Shoujo Madoka Magica" />
       </div>
     </section>
   );

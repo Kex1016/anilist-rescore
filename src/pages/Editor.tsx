@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import {useParams} from "react-router-dom";
 
 import "./Editor.css";
 
@@ -10,17 +10,18 @@ import {
   CardFooter,
   CardTitle,
 } from "@/components/ui/card";
-import { FC, useEffect, useRef, useState } from "react";
-import { listStore, settingsStore } from "@/util/state";
-import { Entry, scoreSystemLookup } from "@/types/UserData";
-import { HistoryType } from "../types/UserData";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import { Link } from "react-router-dom";
+import {FC, useEffect, useRef, useState} from "react";
+import {listStore, settingsStore} from "@/util/state";
+import {Entry, maxScores} from "@/types/UserData";
+import {HistoryType} from "../types/UserData";
+import {Input} from "@/components/ui/input";
+import {Button} from "@/components/ui/button";
+import {toast} from "sonner";
+import {Link} from "react-router-dom";
 
-import { MdDelete, MdArrowBack } from "react-icons/md";
-import { SaveHistory } from "@/util/aniList";
+import {MdDelete, MdArrowBack, MdArrowForward} from "react-icons/md";
+import {SaveHistory} from "@/util/aniList";
+import {rootUrl} from "@/main.tsx";
 
 type EditorPageType = "anime" | "manga";
 type EditorPageId = string;
@@ -30,7 +31,7 @@ type EditorPageParams = {
   type: EditorPageType | undefined;
 };
 
-const StatCard: FC<{ title: string; value: string }> = ({ title, value }) => {
+const StatCard: FC<{ title: string; value: string }> = ({title, value}) => {
   return (
     <div className="bg-background border px-2 py-1 rounded-lg flex flex-col items-center">
       <p className="text-lg font-bold">{title}</p>
@@ -44,7 +45,7 @@ function EditorPage() {
   // - edits go through all at once in one api call
   // - can undo/redo from some sidebar
 
-  const { id, type } = useParams<EditorPageParams>();
+  const {id, type} = useParams<EditorPageParams>();
 
   const userList = listStore.useState();
   const userSettings = settingsStore.useState();
@@ -97,7 +98,7 @@ function EditorPage() {
       setEntry(entry);
 
       firstRender.current = false;
-      lastParam.current = { id, type };
+      lastParam.current = {id, type};
       return;
     }
 
@@ -116,12 +117,12 @@ function EditorPage() {
       }
 
       originalEntry.current = entry;
-      lastParam.current = { id, type };
+      lastParam.current = {id, type};
       setEntry(entry);
     }
 
     if (lastParam.current.id !== id || lastParam.current.type !== type) {
-      lastParam.current = { id, type };
+      lastParam.current = {id, type};
     }
   }, [id, type, userList.entries]);
 
@@ -138,51 +139,6 @@ function EditorPage() {
         {error && <div className="text-3xl font-bold">{error}</div>}
         {originalEntry.current && entry && (
           <>
-            {/* Back button at the left center of the screen. This button will show the prev entry's title and cover on hover */}
-            {userList.entries[type][parseInt(id) - 1] && (
-              <div
-                className="editor-back-container absolute top-[50%] left-3 transform translate-y-[-50%] mt-5"
-                style={{ zIndex: 100 }}
-              >
-                <Button className="bg-primary text-white" asChild>
-                  <Link to={`/editor/${type}/${parseInt(id) - 1}`}>
-                    <MdArrowBack />
-                  </Link>
-                </Button>
-                {/* The previous entry */}
-                <div
-                  className={
-                    "media-preview absolute top-0 left-0 transform translate-x-[50%] -translate-y-1/2 " +
-                    "bg-card p-2 text-white text-center rounded-lg shadow border " +
-                    "flex flex-col gap-3 items-center w-36 opacity-0 transition-opacity pointer-events-none"
-                  }
-                  style={{ zIndex: 100 }}
-                >
-                  <img
-                    src={
-                      userList.entries[type][parseInt(id) - 1].media.coverImage
-                        .extraLarge
-                    }
-                    alt={
-                      userList.entries[type][parseInt(id) - 1].media.title
-                        .userPreferred
-                    }
-                    style={{
-                      backgroundColor:
-                        userList.entries[type][parseInt(id) - 1].media
-                          .coverImage.color,
-                    }}
-                    className="w-full rounded-lg"
-                  />
-                  <p className="text-white text-sm line-clamp-1">
-                    {
-                      userList.entries[type][parseInt(id) - 1].media.title
-                        .userPreferred
-                    }
-                  </p>
-                </div>
-              </div>
-            )}
             <Card className="w-full md:w-1/2 ml-auto">
               <CardHeader className="flex flex-row items-center gap-3">
                 <div>
@@ -191,7 +147,7 @@ function EditorPage() {
                     alt={originalEntry.current.media.title.userPreferred}
                     style={{
                       backgroundColor:
-                        originalEntry.current.media.coverImage.color,
+                      originalEntry.current.media.coverImage.color,
                     }}
                     className="w-24 rounded-lg"
                   />
@@ -235,7 +191,7 @@ function EditorPage() {
                               "text-base mb-2" +
                               (i === 0 ? "" : " line-clamp-2")
                             }
-                            dangerouslySetInnerHTML={{ __html: line }}
+                            dangerouslySetInnerHTML={{__html: line}}
                           />
                         );
                       })
@@ -280,7 +236,7 @@ function EditorPage() {
                                 type="number"
                                 min={0}
                                 max={
-                                  scoreSystemLookup[userSettings.scoreSystem]
+                                  maxScores[userSettings.scoreSystem]
                                 }
                                 // increment by 0.1 if the score system is 10 decimal
                                 step={
@@ -293,8 +249,8 @@ function EditorPage() {
                                   userSettings.scoreSystem ===
                                   "POINT_10_DECIMAL"
                                     ? (
-                                        entry.advancedScores[key] / 10
-                                      ).toString()
+                                      entry.advancedScores[key] / 10
+                                    ).toString()
                                     : entry.advancedScores[key].toString()
                                 }
                                 onChange={(e) => {
@@ -314,7 +270,7 @@ function EditorPage() {
                                   if (value < 0) return;
                                   if (
                                     value >
-                                    scoreSystemLookup[userSettings.scoreSystem]
+                                    maxScores[userSettings.scoreSystem]
                                   )
                                     return;
 
@@ -339,7 +295,7 @@ function EditorPage() {
                       <Input
                         type="number"
                         min={0}
-                        max={scoreSystemLookup[userSettings.scoreSystem]}
+                        max={maxScores[userSettings.scoreSystem]}
                         value={entry.score}
                         onChange={(e) => {
                           const value =
@@ -355,7 +311,7 @@ function EditorPage() {
                           if (isNaN(value)) return;
                           if (value < 0) return;
                           if (
-                            value > scoreSystemLookup[userSettings.scoreSystem]
+                            value > maxScores[userSettings.scoreSystem]
                           )
                             return;
 
@@ -371,6 +327,52 @@ function EditorPage() {
                 </div>
               </CardContent>
               <CardFooter className="flex justify-evenly gap-5">
+                <div
+                  className={
+                    "relative transition-all delay-75 " +
+                    (userList.entries[type][parseInt(id) - 1] === undefined ? "w-0" : "w-16")
+                  }
+                >
+                  {userList.entries[type][parseInt(id) - 1] && (<>
+                    <Button className="text-white w-full" variant="secondary" asChild>
+                      <Link to={`${rootUrl}/editor/${type}/${parseInt(id) - 1}`}>
+                        <MdArrowBack/>
+                      </Link>
+                    </Button>
+                    {/* The previous entry */}
+                    <div
+                      className={
+                        "media-preview absolute top-0 left-0 transform translate-x-[50%] -translate-y-1/2 " +
+                        "bg-card p-2 text-white text-center rounded-lg shadow border " +
+                        "flex flex-col gap-3 items-center w-36 opacity-0 transition-opacity pointer-events-none"
+                      }
+                      style={{zIndex: 100}}
+                    >
+                      <img
+                        src={
+                          userList.entries[type][parseInt(id) - 1].media.coverImage
+                            .extraLarge
+                        }
+                        alt={
+                          userList.entries[type][parseInt(id) - 1].media.title
+                            .userPreferred
+                        }
+                        style={{
+                          backgroundColor:
+                          userList.entries[type][parseInt(id) - 1].media
+                            .coverImage.color,
+                        }}
+                        className="w-full rounded-lg"
+                      />
+                      <p className="text-white text-sm line-clamp-1">
+                        {
+                          userList.entries[type][parseInt(id) - 1].media.title
+                            .userPreferred
+                        }
+                      </p>
+                    </div>
+                  </>)}
+                </div>
                 <Button
                   className="w-full"
                   onClick={() => {
@@ -448,16 +450,23 @@ function EditorPage() {
                   asChild
                 >
                   {userList.entries[type][parseInt(id) + 1] ? (
-                    <Link to={`/editor/${type}/${parseInt(id) + 1}`}>Save</Link>
+                    <Link to={`${rootUrl}/editor/${type}/${parseInt(id) + 1}`}>Save</Link>
                   ) : (
                     <Button>Save</Button>
                   )}
                 </Button>
-                {userList.entries[type][parseInt(id) + 1] && (
-                  <Button className="w-full" variant="secondary" asChild>
-                    <Link to={`/editor/${type}/${parseInt(id) + 1}`}>Skip</Link>
-                  </Button>
-                )}
+                <div className={
+                  "editor-next-container relative transition-all delay-75 " +
+                  (userList.entries[type][parseInt(id) + 1] ? "w-16" : "w-0")
+                }>
+                  {userList.entries[type][parseInt(id) + 1] && (
+                    <Button className="w-full" variant="secondary" asChild>
+                      <Link to={`${rootUrl}/editor/${type}/${parseInt(id) + 1}`}>
+                        <MdArrowForward/>
+                      </Link>
+                    </Button>
+                  )}
+                </div>
               </CardFooter>
             </Card>
           </>
@@ -507,10 +516,10 @@ function EditorPage() {
                           <div>
                             {userSettings.advancedScoring
                               ? Object.values(history.diff.advancedScores).join(
-                                  ", "
-                                ) +
-                                " = " +
-                                history.diff.score
+                                ", "
+                              ) +
+                              " = " +
+                              history.diff.score
                               : history.diff.score}
                           </div>
                         </div>
@@ -528,7 +537,7 @@ function EditorPage() {
                           };
                         }}
                       >
-                        <MdDelete />
+                        <MdDelete/>
                       </Button>
                     </div>
                   );

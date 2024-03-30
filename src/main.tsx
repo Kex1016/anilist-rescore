@@ -17,9 +17,12 @@ import SettingsPage from "@/pages/Settings.tsx";
 import ListPage from "./pages/List.tsx";
 import EditorPage from "./pages/Editor.tsx";
 
+export const rootUrl = "/rescore";
+export const version = "0.9.1";
+
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: `${rootUrl}/*`,
     element: <App />,
     errorElement: (
       <div>
@@ -29,23 +32,23 @@ const router = createBrowserRouter([
     ),
     children: [
       {
-        path: "/",
+        path: "*",
         element: <HomePage />,
       },
       {
-        path: "/login",
+        path: "login",
         element: <LoginPage />,
       },
       {
-        path: "/settings",
+        path: "settings",
         element: <SettingsPage />,
       },
       {
-        path: "/list/:type",
+        path: "list/:type",
         element: <ListPage />,
       },
       {
-        path: "/editor/:type/:id",
+        path: "editor/:type/:id",
         element: <EditorPage />,
       },
     ],

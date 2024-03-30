@@ -185,22 +185,3 @@ export const maxScores = {
   POINT_5: 5,
   POINT_3: 3,
 };
-
-export const defaultUserData: UserData = {
-  user: defaultViewerData,
-  lists: defaultListData,
-  settings: defaultSettings,
-};
-
-// A lookup table for the different score systems
-type ScoreSystemLookup = {
-  [key in ScoreSystem]: number;
-};
-
-export const scoreSystemLookup: ScoreSystemLookup = {
-  POINT_100: 100,
-  POINT_10_DECIMAL: 10,
-  POINT_10: 10,
-  POINT_5: 5,
-  POINT_3: 3,
-};

@@ -5,6 +5,7 @@ import { Navigate } from "react-router-dom";
 import CircularProgress from "@/components/CircularProgress";
 import { MediaList, Viewer } from "@/util/aniList";
 import { defaultListData, defaultSettings } from "@/types/UserData";
+import {rootUrl} from "@/main.tsx";
 
 function LoginPage() {
   const [redirect, setRedirect] = useState<string | null>(null);
@@ -15,7 +16,7 @@ function LoginPage() {
     const loggedIn = userStore.checkLogin();
     if (loggedIn && firstTime.current) {
       // Navigate to /
-      setRedirect("/");
+      setRedirect(rootUrl);
       return;
     }
 
@@ -43,7 +44,7 @@ function LoginPage() {
     Viewer().then((user) => {
       if (!user) {
         // Navigate to /
-        setRedirect("/");
+        setRedirect(rootUrl);
         return;
       }
 
@@ -70,7 +71,7 @@ function LoginPage() {
       MediaList("ANIME").then((list) => {
         if (!list) {
           // Navigate to /
-          setRedirect("/");
+          setRedirect(rootUrl);
           return;
         }
 
@@ -92,7 +93,7 @@ function LoginPage() {
         MediaList("MANGA").then((list) => {
           if (!list) {
             // Navigate to /
-            setRedirect("/");
+            setRedirect(rootUrl);
             return;
           }
 
@@ -110,7 +111,7 @@ function LoginPage() {
           });
 
           // Navigate to /
-          setRedirect("/");
+          setRedirect(rootUrl);
         });
       });
     });

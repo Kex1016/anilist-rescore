@@ -48,6 +48,7 @@ import {
 } from "@/types/UserData";
 import { cva } from "class-variance-authority";
 import { ThemeToggle } from "./ThemeToggle";
+import {rootUrl, version} from "@/main.tsx";
 
 function Navbar() {
   const [logoutDialogOpen, setLogoutDialogOpen] = useState<boolean>(false);
@@ -80,9 +81,9 @@ function Navbar() {
 
   return (
     <div className="navbar sticky top-0 z-50 bg-background/50 backdrop-blur-lg p-4 border-b border-accent flex items-center">
-      <div className="navbar-logo">
-        AniList Rescorer
-        <Badge className="ml-2">v1.0.0</Badge>
+      <div className="navbar-logo text-xl font-bold">
+        Ani<span className="text-primary">List</span> Rescorer
+        <Badge className="ml-2">v{version}</Badge>
       </div>
       <div className="navbar-links ml-auto">
         {/* Auto routes */}
@@ -99,7 +100,7 @@ function Navbar() {
                       " data-[open=true]:bg-accent/50 bg-accent/0"
                     }
                   >
-                    <NavLink to={route.path}>{route.name}</NavLink>
+                    <NavLink to={`${rootUrl}${route.path}`}>{route.name}</NavLink>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
               );
@@ -127,7 +128,7 @@ function Navbar() {
                         <div
                           className="h-10 w-10 dark:invert-0 invert"
                           style={{
-                            backgroundImage: "url('/haiiro.png')",
+                            backgroundImage: `url('${rootUrl}/haiiro.png')`,
                             backgroundPosition: "center",
                             backgroundRepeat: "no-repeat",
                             backgroundSize: "150%",
@@ -173,7 +174,7 @@ function Navbar() {
             ) : (
               <NavigationMenuItem>
                 <NavigationMenuLink asChild className={customNavMenuStyle()}>
-                  <Link to="/login">Login</Link>
+                  <Link to={`${rootUrl}/login`}>Login</Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
             )}
@@ -201,7 +202,7 @@ function Navbar() {
 
               <DropdownMenuGroup>
                 <DropdownMenuItem asChild>
-                  <NavLink to="/settings">
+                  <NavLink to={`${rootUrl}/settings`}>
                     <MdSettings className="mr-2 h-full" />
                     Settings
                   </NavLink>
