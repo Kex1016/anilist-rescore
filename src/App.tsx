@@ -32,7 +32,7 @@ function App() {
   useEffect(() => {
     if (firstTime.current) {
       const integrityViolated = testListIntegrity();
-      if (integrityViolated) {
+      if (integrityViolated && userStore.checkLogin()) {
         toast("Your list is not in a valid state!", {
           duration: 5000,
           description: "Re-fetching your data..."
