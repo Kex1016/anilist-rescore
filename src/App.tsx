@@ -15,10 +15,11 @@ import ListPage from "./pages/List.tsx";
 import {Toaster} from "@/components/ui/sonner";
 import {ThemeProvider} from "./components/ThemeProvider.tsx";
 import EditorPage from "./pages/Editor.tsx";
-import {settingsStore, userStore} from "@/util/state.ts";
+import {listStore, settingsStore, userStore} from "@/util/state.ts";
 import {toast} from "sonner";
-import {fetchScoringSettings} from "@/util/aniList.ts";
+import {fetchScoringSettings, MediaList, testListIntegrity} from "@/util/aniList.ts";
 import {setupMatomo} from "@/util/matomo.ts";
+import {List} from "@/types/UserData.ts";
 
 function App() {
   const location = useLocation();
@@ -30,7 +31,63 @@ function App() {
 
   useEffect(() => {
     if (firstTime.current) {
+      const integrityViolated = testListIntegrity();
+      if (integrityViolated) {
+        toast("Your list is not in a valid state!", {
+          duration: 5000,
+          description: "Re-fetching your data..."
+        });
+
+        MediaList("MANGA").then(mangaList => {
+          MediaList("ANIME").then(animeList => {
+            if (!mangaList || !animeList) {
+              toast("Failed to fetch your list data!", {duration: 3000});
+              return;
+            }
+
+            const compare = (list: List) => {
+              if (list.name === "Completed" && settings.enabledLists.completed)
+                return true;
+              if (list.name === "Watching" && settings.enabledLists.current)
+                return true;
+              if (list.name === "Planning" && settings.enabledLists.planning)
+                return true;
+              if (list.name === "Paused" && settings.enabledLists.paused) return true;
+              if (list.name === "Dropped" && settings.enabledLists.dropped) return true;
+              return false;
+            };
+
+            // Get rid of lists that aren't enabled
+            const _a = animeList.filter((list) => {
+              return compare(list);
+            });
+            const _m = mangaList.filter((list) => {
+              return compare(list);
+            });
+
+            // Set a fromList property on each entry
+            for (const list of _a) {
+              for (const entry of list.entries) {
+                const i = _a.indexOf(list);
+                const j = _a[i].entries.indexOf(entry);
+                _a[i].entries[j].fromList = list.name;
+              }
+            }
+
+            // Flatten the list
+            const flatAnimeList = _a.flatMap((list) => list.entries);
+            const flatMangaList = _m.flatMap((list) => list.entries);
+
+            listStore.animeList = flatAnimeList;
+            listStore.mangaList = flatMangaList;
+
+            toast("Successfully fetched your list data!");
+          });
+        });
+      }
+      
       setupMatomo();
+      
       firstTime.current = false;
 
       if (!settings.lastFetched || settings.lastFetched + 1000 * 60 * 60 * 24 < Date.now()) {
@@ -57,7 +114,7 @@ function App() {
       return;
     }
     if (location !== displayLocation) setTransistionStage("fadeOut");
-  }, [location, displayLocation, settings.lastFetched]);
+  }, [location, displayLocation, settings.lastFetched, settings.enabledLists]);
 
   return (
     <>

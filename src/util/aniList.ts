@@ -4,9 +4,10 @@ import {
   ScoreSystem,
   Entry,
   HistoryType, Settings,
+  Status as EntryStatus
 } from "@/types/UserData";
-import { listStore, settingsStore, userStore } from "./state";
-import { toast } from "sonner";
+import {listStore, settingsStore, userStore} from "./state";
+import {toast} from "sonner";
 
 export const Token = () => {
   return userStore.token.accessToken;
@@ -175,12 +176,12 @@ export const SaveScore = async (
           listId: entry.id,
           score: advanced
             ? Object.values(advancedScores).reduce((a, b) => a + b, 0) /
-              Object.values(advancedScores).length
+            Object.values(advancedScores).length
             : parseFloat(score.toString()),
           advancedScores: advanced
             ? Object.values(advancedScores).map((score) =>
-                parseFloat(score.toString())
-              )
+              parseFloat(score.toString())
+            )
             : undefined,
         },
       }),
@@ -320,4 +321,150 @@ export async function fetchScoringSettings() {
   };
 
   return _s;
-} 
+}
+
+export function testListIntegrity() {
+  let isBad = false;
+  
+  const compare: {
+    anime: Entry,
+    manga: Entry
+  } = {
+    anime: {
+      fromList: "",
+      id: 0,
+      media: {
+        title: {
+          userPreferred: "",
+          english: "",
+          native: "",
+          romaji: ""
+        },
+        description: "",
+        startDate: {
+          year: 0,
+          month: 0,
+          day: 0
+        },
+        endDate: {
+          year: 0,
+          month: 0,
+          day: 0
+        },
+        format: "",
+        coverImage: {
+          extraLarge: "",
+          color: "",
+          medium: "",
+          large: ""
+        },
+        siteUrl: "",
+        genres: [],
+        episodes: 0
+      },
+      progress: 0,
+      score: 0,
+      status: EntryStatus.Completed,
+      advancedScores: {},
+      completedAt: {
+        year: 0,
+        month: 0,
+        day: 0
+      },
+      startedAt: {
+        year: 0,
+        month: 0,
+        day: 0
+      }
+    },
+    manga: {
+      fromList: "",
+      id: 0,
+      media: {
+        title: {
+          userPreferred: "",
+          english: "",
+          native: "",
+          romaji: ""
+        },
+        description: "",
+        startDate: {
+          year: 0,
+          month: 0,
+          day: 0
+        },
+        endDate: {
+          year: 0,
+          month: 0,
+          day: 0
+        },
+        format: "",
+        coverImage: {
+          extraLarge: "",
+          medium: "",
+          color: "",
+          large: ""
+        },
+        siteUrl: "",
+        genres: [],
+        chapters: 0
+      },
+      progress: 0,
+      score: 0,
+      status: EntryStatus.Completed,
+      advancedScores: {},
+      completedAt: {
+        year: 0,
+        month: 0,
+        day: 0
+      },
+      startedAt: {
+        year: 0,
+        month: 0,
+        day: 0
+      }
+    }
+  }
+
+  // Test if any of the entries have all the required fields from the {Entry} type
+  const types: ("anime" | "manga")[] = ["anime", "manga"];
+  const entries = listStore.entries;
+  for (const type of types) {
+    for (const entry of entries[type]) {
+      for (const key in compare[type]) {
+        const _k = key as keyof Entry;
+        
+        // We don't need to take fromList seriously.
+        if (_k === "fromList") continue;
+        
+        if (_k === "media") {
+          for (const mediaKey in compare[type].media) {
+            const _m = mediaKey as keyof Entry["media"];
+            
+            if (entry[_k][_m] === undefined) {
+              console.error(`Entry ${entry.id} is missing field ${key}.${mediaKey}`);
+              console.log(entry)
+              isBad = true;
+              break;
+            }
+          }
+        }
+        
+        if (entry[_k] === undefined) {
+          console.error(`Entry ${entry.id} is missing field ${key}`);
+          console.log(entry)
+          isBad = true;
+          break;
+        }
+      }
+      
+      if (isBad) break;
+    }
+
+    if (isBad) break;
+  }
+
+  console.log("List integrity test:", isBad ? "Failed" : "Passed")
+
+  return isBad;
+}

@@ -54,7 +54,7 @@ type Title = {
   userPreferred: string;
 };
 
-enum Status {
+export enum Status {
   Completed = "COMPLETED",
   Current = "CURRENT",
   Dropped = "DROPPED",
