@@ -98,6 +98,7 @@ export const MediaList = async (type: "ANIME" | "MANGA") => {
             siteUrl
             genres
             episodes
+            chapters
           }
           startedAt {
             year

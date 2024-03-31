@@ -30,7 +30,8 @@ export type Media = {
   coverImage: CoverImage;
   siteUrl: string;
   genres: string[];
-  episodes: number;
+  episodes?: number;
+  chapters?: number;
 };
 
 type Date = {

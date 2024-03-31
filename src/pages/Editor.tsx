@@ -208,8 +208,14 @@ function EditorPage() {
                     value={originalEntry.current.status}
                   />
                   <StatCard
-                    title="Episodes"
-                    value={originalEntry.current.media.episodes.toString()}
+                    title={
+                      type === "anime" ? "Episodes" : "Chapters"
+                    }
+                    value={
+                      type === "anime"
+                        ? originalEntry.current.media.episodes!.toString()
+                        : originalEntry.current.media.chapters ? originalEntry.current.media.chapters.toString() : "Unknown"
+                    }
                   />
                   <StatCard
                     title={
