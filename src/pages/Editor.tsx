@@ -20,7 +20,7 @@ import {toast} from "sonner";
 import {Link} from "react-router-dom";
 
 import {MdDelete, MdArrowBack, MdArrowForward} from "react-icons/md";
-import {SaveHistory} from "@/util/aniList";
+import {isValidForAdvancedScoring, SaveHistory} from "@/util/aniList";
 import {rootUrl} from "@/main.tsx";
 
 type EditorPageType = "anime" | "manga";
@@ -229,7 +229,7 @@ function EditorPage() {
                   <h2 className="text-2xl font-bold mb-2">Edit scores</h2>
                   {
                     // Advanced scores, auto focus on the first input
-                    userSettings.advancedScoring ? (
+                    isValidForAdvancedScoring(userSettings) ? (
                       Object.keys(originalEntry.current.advancedScores).map(
                         (key, i) => {
                           return (
@@ -252,12 +252,7 @@ function EditorPage() {
                                     : 1
                                 }
                                 value={
-                                  userSettings.scoreSystem ===
-                                  "POINT_10_DECIMAL"
-                                    ? (
-                                      entry.advancedScores[key] / 10
-                                    ).toString()
-                                    : entry.advancedScores[key].toString()
+                                  entry.advancedScores[key].toString()
                                 }
                                 onChange={(e) => {
                                   const value =
@@ -265,12 +260,6 @@ function EditorPage() {
                                     "POINT_10_DECIMAL"
                                       ? parseFloat(e.target.value)
                                       : parseInt(e.target.value);
-
-                                  const actualValue =
-                                    userSettings.scoreSystem ===
-                                    "POINT_10_DECIMAL"
-                                      ? value * 10
-                                      : value;
 
                                   if (isNaN(value)) return;
                                   if (value < 0) return;
@@ -284,7 +273,7 @@ function EditorPage() {
                                     ...entry,
                                     advancedScores: {
                                       ...entry.advancedScores,
-                                      [key]: actualValue,
+                                      [key]: value,
                                     },
                                     score: Object.values(
                                       entry.advancedScores
@@ -302,17 +291,17 @@ function EditorPage() {
                         type="number"
                         min={0}
                         max={maxScores[userSettings.scoreSystem]}
+                        step={
+                          userSettings.scoreSystem === "POINT_10_DECIMAL"
+                            ? 0.1
+                            : 1
+                        }
                         value={entry.score}
                         onChange={(e) => {
                           const value =
                             userSettings.scoreSystem === "POINT_10_DECIMAL"
                               ? parseFloat(e.target.value)
                               : parseInt(e.target.value);
-
-                          const actualValue =
-                            userSettings.scoreSystem === "POINT_10_DECIMAL"
-                              ? value * 10
-                              : value;
 
                           if (isNaN(value)) return;
                           if (value < 0) return;
@@ -323,7 +312,7 @@ function EditorPage() {
 
                           setEntry({
                             ...entry,
-                            score: actualValue,
+                            score: value,
                           });
                         }}
                         autoFocus
@@ -421,7 +410,7 @@ function EditorPage() {
                       timestamp: Date.now(),
                     };
 
-                    if (userSettings.advancedScoring) {
+                    if (isValidForAdvancedScoring(userSettings)) {
                       history.diff.score =
                         Object.values(entry.advancedScores).reduce(
                           (a, b) => a + b
@@ -515,12 +504,12 @@ function EditorPage() {
                         </div>
                         <div className="flex flex-row gap-2">
                           <div className="font-bold">
-                            {userSettings.advancedScoring
+                            {isValidForAdvancedScoring(userSettings)
                               ? "Scores:"
                               : "Score:"}
                           </div>
                           <div>
-                            {userSettings.advancedScoring
+                            {isValidForAdvancedScoring(userSettings)
                               ? Object.values(history.diff.advancedScores).join(
                                 ", "
                               ) +

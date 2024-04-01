@@ -1,10 +1,11 @@
 import {
-  type List,
-  type Viewer as ViewerType,
-  ScoreSystem,
   Entry,
-  HistoryType, Settings,
-  Status as EntryStatus
+  HistoryType,
+  type List,
+  ScoreSystem,
+  Settings,
+  Status as EntryStatus,
+  type Viewer as ViewerType
 } from "@/types/UserData";
 import {listStore, settingsStore, userStore} from "./state";
 import {toast} from "sonner";
@@ -228,7 +229,7 @@ export async function SaveHistory(
     let query = "mutation{";
     for (const entry of entries) {
       let scoreString = "";
-      if (Object.keys(entry.diff.advancedScores).length > 0) {
+      if (isValidForAdvancedScoring(settingsStore)) {
         // Average is always 0-100 regardless of score system, so if its 10 decimal, we need to multiply by 10
         let avg = 0;
         if (settingsStore.scoreSystem === "POINT_10_DECIMAL") {
@@ -239,7 +240,7 @@ export async function SaveHistory(
           }
 
           avg = Math.round(
-            avg / Object.keys(entry.diff.advancedScores).length / 10
+            avg / Object.keys(entry.diff.advancedScores).length
           );
         } else {
           for (const key in entry.diff.advancedScores) {
@@ -247,7 +248,7 @@ export async function SaveHistory(
           }
 
           avg = Math.round(
-            avg / Object.keys(entry.diff.advancedScores).length / 10
+            avg / Object.keys(entry.diff.advancedScores).length
           );
         }
 
@@ -255,7 +256,7 @@ export async function SaveHistory(
           entry.diff.advancedScores
         );
         if (settingsStore.scoreSystem === "POINT_10_DECIMAL") {
-          advScores = advScores.map((score) => (score / 10).toFixed(1));
+          advScores = advScores.map((score) => score.toFixed(1));
         }
 
         // scoreString should be [float, float, float, ...]
@@ -267,6 +268,23 @@ export async function SaveHistory(
       }
 
       const realEntry = listStore.entries[type][entry.entryId];
+      const modifiedEntry = {
+        ...realEntry,
+        score: entry.diff.score,
+        advancedScores: entry.diff.advancedScores,
+      };
+
+      const index = listStore.entries[type].indexOf(realEntry);
+      const _entries = listStore.entries[type].slice(
+        0,
+        index
+      ).concat(modifiedEntry).concat(listStore.entries[type].slice(index + 1));
+
+      if (type === "anime") {
+        listStore.animeList = _entries;
+      } else {
+        listStore.mangaList = _entries;
+      }
 
       query += `
         ${numToLetters(entry.entryId)}: SaveMediaListEntry(id: ${
@@ -325,7 +343,7 @@ export async function fetchScoringSettings() {
 
 export function testListIntegrity() {
   let isBad = false;
-  
+
   const compare: {
     anime: Entry,
     manga: Entry
@@ -433,14 +451,14 @@ export function testListIntegrity() {
     for (const entry of entries[type]) {
       for (const key in compare[type]) {
         const _k = key as keyof Entry;
-        
+
         // We don't need to take fromList seriously.
         if (_k === "fromList") continue;
-        
+
         if (_k === "media") {
           for (const mediaKey in compare[type].media) {
             const _m = mediaKey as keyof Entry["media"];
-            
+
             if (entry[_k][_m] === undefined) {
               console.error(`Entry ${entry.id} is missing field ${key}.${mediaKey}`);
               console.log(entry)
@@ -449,7 +467,7 @@ export function testListIntegrity() {
             }
           }
         }
-        
+
         if (entry[_k] === undefined) {
           console.error(`Entry ${entry.id} is missing field ${key}`);
           console.log(entry)
@@ -457,7 +475,7 @@ export function testListIntegrity() {
           break;
         }
       }
-      
+
       if (isBad) break;
     }
 
@@ -467,4 +485,16 @@ export function testListIntegrity() {
   console.log("List integrity test:", isBad ? "Failed" : "Passed")
 
   return isBad;
+}
+
+export function isValidForAdvancedScoring(settings: Settings) {
+  const scoring = settings.scoreSystem;
+  const advanced = settings.advancedScoring;
+  let valid = false;
+
+  if ((scoring === "POINT_100" || scoring === "POINT_10_DECIMAL") && advanced) {
+    valid = true;
+  }
+
+  return valid;
 }
