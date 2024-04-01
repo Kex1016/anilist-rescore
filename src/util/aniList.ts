@@ -322,6 +322,11 @@ export async function SaveHistory(
     await new Promise((resolve) => setTimeout(resolve, 250));
   }
 
+  listStore.history = {
+    ...listStore.history,
+    [type]: []
+  };
+
   toast("Saved history to AniList!");
 }
 
