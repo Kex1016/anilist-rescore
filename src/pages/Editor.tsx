@@ -57,9 +57,7 @@ function EditorPage() {
         if (a.advancedScores[key] !== b.advancedScores[key]) return false;
       }
     }
-    if (a.score !== b.score) return false;
-
-    return true;
+    return a.score === b.score;
   }
 
   const firstRender = useRef(true);
@@ -488,7 +486,7 @@ function EditorPage() {
                     >
                       <div className="flex flex-col">
                         <div className="flex flex-row gap-2 text-left items-end">
-                          <p>
+                          <p className="line-clamp-1">
                             {
                               userList.entries[type][history.entryId].media
                                 .title.userPreferred
