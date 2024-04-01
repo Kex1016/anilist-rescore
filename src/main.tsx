@@ -18,7 +18,7 @@ import ListPage from "./pages/List.tsx";
 import EditorPage from "./pages/Editor.tsx";
 
 export const rootUrl = "/rescore";
-export const version = "1.0.0";
+export const version = "1.0.1";
 
 const router = createBrowserRouter([
   {
